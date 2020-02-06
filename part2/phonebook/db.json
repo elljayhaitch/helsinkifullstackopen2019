@@ -21,14 +21,9 @@
       "id": 4
     },
     {
-      "name": "noNumber",
-      "id": 5,
-      "number": ""
-    },
-    {
-      "name": "existingNumber",
-      "id": 6,
-      "number": "123"
+      "name": "Leonhard Euler",
+      "number": "15-04-1707",
+      "id": 5
     }
   ]
 }

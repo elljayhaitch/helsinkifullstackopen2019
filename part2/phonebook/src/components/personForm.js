@@ -1,60 +1,52 @@
 import React from 'react';
 import personsService from '../services/personsService'
 
-const personMatch = (person, newName) => person.name.toUpperCase() === newName.toUpperCase()
+const personMatch = (person, newName) => person.name.toUpperCase() === newName.toUpperCase();
+
+const updatePerson = (newName, setNewName, newNumber, setNewNumber, persons, setPersons) => {
+	const person = persons.filter(person => personMatch(person, newName))[0];
+
+	if (person.number === newNumber) {
+		alert(`${newName} is already added to phonebook`);
+	} else if (window.confirm(`${person.name} is already added to phonebook, replace the old number with a new one?`)) {			
+		personsService
+		.update({...person, number: newNumber})
+		.then(updated => {
+		  	const newPersons = persons.map(p => p.id !== person.id ? p : updated);
+		    setPersons(newPersons);
+		    setNewName('');
+		    setNewNumber('');
+		})
+		.catch(error => alert('could not update'));
+	}
+};
+
+
+const createPerson = (newName, setNewName, newNumber, setNewNumber, persons, setPersons) => {	
+	personsService
+		.create({ name: newName, number: newNumber })
+		.then(saved => {
+		  	const newPersons = persons.concat(saved);
+		    setPersons(newPersons);
+		    setNewName('');
+		    setNewNumber('');
+		})
+		.catch(error => alert('could not create'));
+};
 
 const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setPersons}) => {
-  const onClick = event => {
+	const onClick = event => {
 		event.preventDefault();
 
-		// existing person
 		if (persons.some(person => personMatch(person, newName))) {
-			const person = persons.filter(person => personMatch(person, newName))[0];
-
-			if (person.number === newNumber) {
-				// person already exists, and no number to overwrite, allow user to blank existing
-				alert(`${newName} is already added to phonebook`);
-			} else {
-				// person already exists, and has a number to overwrite
-				if (window.confirm(`${person.name} is already added to phonebook, replace the old number with a new one?`)) { 
-					const editedPerson = {...person, number: newNumber}
-
-					personsService
-					.update(editedPerson)
-					.then(updated => {
-						// on successful put, set persons in state
-					  	const newPersons = persons.map(p => p.id !== person.id ? p : updated);
-					    setPersons(newPersons);
-
-					    // and reset name and number in state
-					    setNewName('');
-					    setNewNumber('');
-					})
-					.catch(error => alert('could not update'));
-				}
-			}
-		// new person
+			updatePerson(newName, setNewName, newNumber, setNewNumber, persons, setPersons);
 		} else {
-			const newPerson = { name: newName, number: newNumber };
-
-			personsService
-				.create(newPerson)
-				.then(saved => {
-					// on successful save, set persons in state
-				  	const newPersons = persons.concat(saved);
-				    setPersons(newPersons);
-
-				    // and reset name and number in state
-				    setNewName('');
-				    setNewNumber('');
-				})
-				.catch(error => alert('could not create'));
+			createPerson(newName, setNewName, newNumber, setNewNumber, persons, setPersons);
 		}
 	};
 
 	return (
-	<form>
-
+		<form>
 	        <div>
 	          name: 
 	          <input 
