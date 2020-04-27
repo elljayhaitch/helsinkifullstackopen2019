@@ -3,7 +3,7 @@ import personsService from '../services/personsService';
 
 const personMatch = (person, newName) => person.name.toUpperCase() === newName.toUpperCase();
 
-const updatePerson = (newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage) => {
+const updatePerson = (newName, setNewName, newNumber, setNewNumber, persons, setPersons, setNotification) => {
 	const person = persons.filter(person => personMatch(person, newName))[0];
 
 	if (person.number === newNumber) {
@@ -16,13 +16,13 @@ const updatePerson = (newName, setNewName, newNumber, setNewNumber, persons, set
 		    setPersons(newPersons);
 		    setNewName('');
 			setNewNumber('');
-			setNotification(`Updated ${newName}`, setMessage);
+			setNotification(`Updated ${newName}`);
 		})
-		.catch(error => alert('could not update'));
+		.catch(error => setNotification('could not update', true));
 	}
 };
 
-const createPerson = (newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage) => {	
+const createPerson = (newName, setNewName, newNumber, setNewNumber, persons, setPersons, setNotification) => {	
 	personsService
 		.create({ name: newName, number: newNumber })
 		.then(saved => {
@@ -30,24 +30,19 @@ const createPerson = (newName, setNewName, newNumber, setNewNumber, persons, set
 		    setPersons(newPersons);
 		    setNewName('');
 			setNewNumber('');
-			setNotification(`Added ${newName}`, setMessage);
+			setNotification(`Added ${newName}`);
 		})
-		.catch(error => alert('could not create'));
+		.catch(error => setNotification('could not create', true));
 };
 
-const setNotification = (notification, setMessage) => {
-	setMessage(notification);
-	setTimeout(() => setMessage(null), 5000);
-}
-
-const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage}) => {
+const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setPersons, setNotification}) => {
 	const onClick = event => {
 		event.preventDefault();
 
 		if (persons.some(person => personMatch(person, newName))) {
-			updatePerson(newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage);
+			updatePerson(newName, setNewName, newNumber, setNewNumber, persons, setPersons, setNotification);
 		} else {
-			createPerson(newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage);
+			createPerson(newName, setNewName, newNumber, setNewNumber, persons, setPersons, setNotification);
 		}
 	};
 
