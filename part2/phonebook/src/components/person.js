@@ -7,9 +7,10 @@ const removePerson = (person, persons, setPersons, setNotification) => {
 		.remove(person.id)
 		.then(status => {
 		  	const newPersons = persons.filter(p => p.id !== person.id);
-		    setPersons(newPersons);
+			setPersons(newPersons);
+			setNotification(`Deleted ${person.name}`);
 		})
-		.catch(error => setNotification('could not delete', true));
+		.catch(error => setNotification(`Information of ${person.name} has already been removed from server`, true));
 	}
 };
 
