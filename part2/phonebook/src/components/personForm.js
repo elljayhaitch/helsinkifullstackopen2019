@@ -1,9 +1,9 @@
 import React from 'react';
-import personsService from '../services/personsService'
+import personsService from '../services/personsService';
 
 const personMatch = (person, newName) => person.name.toUpperCase() === newName.toUpperCase();
 
-const updatePerson = (newName, setNewName, newNumber, setNewNumber, persons, setPersons) => {
+const updatePerson = (newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage) => {
 	const person = persons.filter(person => personMatch(person, newName))[0];
 
 	if (person.number === newNumber) {
@@ -15,33 +15,39 @@ const updatePerson = (newName, setNewName, newNumber, setNewNumber, persons, set
 		  	const newPersons = persons.map(p => p.id !== person.id ? p : updated);
 		    setPersons(newPersons);
 		    setNewName('');
-		    setNewNumber('');
+			setNewNumber('');
+			setNotification(`Updated ${newName}`, setMessage);
 		})
 		.catch(error => alert('could not update'));
 	}
 };
 
-
-const createPerson = (newName, setNewName, newNumber, setNewNumber, persons, setPersons) => {	
+const createPerson = (newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage) => {	
 	personsService
 		.create({ name: newName, number: newNumber })
 		.then(saved => {
 		  	const newPersons = persons.concat(saved);
 		    setPersons(newPersons);
 		    setNewName('');
-		    setNewNumber('');
+			setNewNumber('');
+			setNotification(`Added ${newName}`, setMessage);
 		})
 		.catch(error => alert('could not create'));
 };
 
-const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setPersons}) => {
+const setNotification = (notification, setMessage) => {
+	setMessage(notification);
+	setTimeout(() => setMessage(null), 5000);
+}
+
+const PersonForm = ({newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage}) => {
 	const onClick = event => {
 		event.preventDefault();
 
 		if (persons.some(person => personMatch(person, newName))) {
-			updatePerson(newName, setNewName, newNumber, setNewNumber, persons, setPersons);
+			updatePerson(newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage);
 		} else {
-			createPerson(newName, setNewName, newNumber, setNewNumber, persons, setPersons);
+			createPerson(newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage);
 		}
 	};
 

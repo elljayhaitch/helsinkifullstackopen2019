@@ -4,6 +4,7 @@ import './index.css';
 import Filter from './components/filter';
 import PersonForm from './components/personForm';
 import Persons from './components/persons';
+import Notification from './components/notification';
 import personsService from './services/personsService'
 
 const App = () => {
@@ -11,6 +12,8 @@ const App = () => {
   const [ newName, setNewName ] = useState('');
   const [ newNumber, setNewNumber ] = useState('');
   const [ filter, setFilter ] = useState('');
+  const [ message, setMessage ] = useState(null);
+  const [ notificationClass, setNotificationClass ] = useState("notification");
 
   const getAllHook = () => {
     personsService
@@ -20,11 +23,12 @@ const App = () => {
   };
   useEffect(getAllHook, [])
 
-  const personFormProps = { newName, setNewName, newNumber, setNewNumber, persons, setPersons };
+  const personFormProps = { newName, setNewName, newNumber, setNewNumber, persons, setPersons, setMessage };
 
 	return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} notificationClass={notificationClass}/>
       <Filter filter={filter} setFilter={setFilter} />
 
       <h3>add a new</h3>

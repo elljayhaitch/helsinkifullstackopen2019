@@ -23,6 +23,7 @@ const App = () => {
 	useEffect(() => {
 		if (filteredCountries.length === 1) {
 			const capital = filteredCountries[0].capital;
+
 			const weatherEndpoint = `http://api.weatherstack.com/current?access_key=${process.env.REACT_APP_WEATHER_API_KEY}&query=${capital}`;
 			
 			axios
