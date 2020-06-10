@@ -2,8 +2,8 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-  "title": "CoDex 1962",
-  "author": "mcdbooks",
-  "url": "https://www.mcdbooks.com/books/codex-1962",
+  "title": "She Wants a Higher Profile for Black Skydivers. See How High.",
+  "author": "Alina Tugend",
+  "url": "https://nyti.ms/2PPwbCZ",
   "likes": 0
 }
