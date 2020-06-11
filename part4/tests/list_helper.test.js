@@ -1,4 +1,4 @@
-const { dummy, totalLikes, favoriteBlog } = require('../utils/list_helper')
+const { dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes } = require('../utils/list_helper')
 
 test('dummy returns one', () => {
   const blogs = []
@@ -79,17 +79,57 @@ describe('favorite blog', () => {
 
   test('when list has only one blog equals that blog', () => {
     expect(favoriteBlog([blogs[0]])).toEqual({
-      "title": "React patterns",
-      "author": "Michael Chan",
-      "likes": 7
+      "title": blogs[0].title,
+      "author": blogs[0].author,
+      "likes": blogs[0].likes
     })
   })
 
-  test('of a bigger list is return correctly', () => {
+  test('of a bigger list is returned correctly', () => {
     expect(favoriteBlog(blogs)).toEqual({
       "title": "Canonical string reduction",
       "author": "Edsger W. Dijkstra",
       "likes": 12
+    })
+  })
+})
+
+describe('most blogs', () => {
+  test('of empty list is null', () => {
+    expect(mostBlogs([])).toBe(null)
+  })
+
+  test('when list has only one blog equals the author of that', () => {
+    expect(mostBlogs([blogs[0]])).toEqual({
+      "author": blogs[0].author,
+      "blogs": 1
+    })
+  })
+
+  test('of a bigger list is returned correctly', () => {
+    expect(mostBlogs(blogs)).toEqual({
+      "author": "Robert C. Martin",
+      "blogs": 3
+    })
+  })
+})
+
+describe('most likes', () => {
+  test('of empty list is null', () => {
+    expect(mostLikes([])).toBe(null)
+  })
+
+  test('when list has only one blog equals the author of that', () => {
+    expect(mostLikes([blogs[0]])).toEqual({
+      "author": blogs[0].author,
+      "likes": blogs[0].likes
+    })
+  })
+
+  test('of a bigger list is returned correctly', () => {
+    expect(mostLikes(blogs)).toEqual({
+      "author": "Edsger W. Dijkstra",
+      "likes": 17
     })
   })
 })
