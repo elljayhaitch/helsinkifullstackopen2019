@@ -28,7 +28,7 @@ const mostBlogs = (blogs) => {
   }
 
   var authors = _.chain(blogs)
-    .groupBy("author")
+    .groupBy('author')
     .map((value, key) => ({ author: key, blogs: value.length }))
     .value()
 
@@ -41,7 +41,7 @@ const mostLikes = (blogs) => {
   }
 
   var authors = _.chain(blogs)
-    .groupBy("author")
+    .groupBy('author')
     .map((value, key) => ({ author: key, likes: _.sumBy(value, item => item.likes) }))
     .value()
 

@@ -3,7 +3,7 @@ const Blog = require('../models/blog')
 const initialBlogs = [
   {
     title: 'Nuts',
-    author: "Chris O’Leary",
+    author: 'Chris O’Leary',
     url: 'https://bowiesongs.wordpress.com/2020/06/29/nuts/',
     likes: 0
   },
