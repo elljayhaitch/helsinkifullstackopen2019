@@ -1,0 +1,11 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imdyb2JiIiwiaWQiOiI1ZjE0YzZlYzMyNDRiNzBlMDRlNTIxMjQiLCJpYXQiOjE1OTUyMDE1Mjd9.ywSfpZc2cyhXbh_czMS0xE4-lL6kmhDx-QuLYR1lS4E
+
+{
+  "title": "CoDex 1962",
+  "author": "mcdbooks",
+  "url": "https://www.mcdbooks.com/books/codex-1962",
+  "likes": 0,
+  "userId": "5f14c6ec3244b70e04e52124"
+}

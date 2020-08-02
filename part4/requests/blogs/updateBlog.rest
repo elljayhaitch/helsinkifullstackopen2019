@@ -1,9 +1,10 @@
-POST http://localhost:3003/api/blogs
+PUT http://localhost:3003/api/blogs/5f14d00e43265f0fe0effc0f
 Content-Type: application/json
 
 {
   "title": "She Wants a Higher Profile for Black Skydivers. See How High.",
   "author": "Alina Tugend",
   "url": "https://nyti.ms/2PPwbCZ",
-  "likes": 0
+  "likes": 1,
+  "user": "5f14c6ec3244b70e04e52124"
 }

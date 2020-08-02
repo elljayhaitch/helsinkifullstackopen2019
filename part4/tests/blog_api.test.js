@@ -5,12 +5,21 @@ const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
-// const { response } = require('express')
+const User = require('../models/user')
+
+let token = ''
 
 beforeEach(async () => {
   await Blog.deleteMany({})
+  await User.deleteMany({})
 
-  const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
+  const tokenForInitialUser = await helper.getTokenForInitialUser()
+  token = tokenForInitialUser.token
+
+  const blogObjects = helper.initialBlogs.map(blog => {
+    blog.user = tokenForInitialUser.userId
+    return new Blog(blog)
+  })
   const promiseArray = blogObjects.map(blog => blog.save())
 
   await Promise.all(promiseArray)
@@ -44,7 +53,13 @@ describe('GET a blog by id', () => {
       .get(`/api/blogs/${blogToView.id}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
-    expect(resultBlog.body).toEqual(blogToView)
+
+    expect(resultBlog.body.author).toEqual(blogToView.author)
+    expect(resultBlog.body.id).toEqual(blogToView.id)
+    expect(resultBlog.body.likes).toEqual(blogToView.likes)
+    expect(resultBlog.body.title).toEqual(blogToView.title)
+    expect(resultBlog.body.url).toEqual(blogToView.url)
+    expect(resultBlog.body.user.toString()).toEqual(blogToView.user.toString())
   })
 
   test('fails if blog does not exist', async () => {
@@ -55,9 +70,9 @@ describe('GET a blog by id', () => {
   })
 
   test('fails if id is invalid', async () => {
-    const validNonexistingId = '12345'
+    const invalidId = '5a3d5da59070081a82a3445'
     await api
-      .get(`/api/blogs/${validNonexistingId}`)
+      .get(`/api/blogs/${invalidId}`)
       .expect(400)
   })
 })
@@ -75,8 +90,9 @@ describe('POST to create a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
-      .expect(201)
+      .expect(200)
       .expect('Content-Type', /application\/json/)
 
     const blogsAtEnd = await helper.blogsInDb()
@@ -97,8 +113,9 @@ describe('POST to create a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
-      .expect(201)
+      .expect(200)
 
     const blogsAtEnd = await helper.blogsInDb()
 
@@ -119,8 +136,9 @@ describe('POST to create a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
-      .expect(201)
+      .expect(200)
 
     const blogsAtEnd = await helper.blogsInDb()
 
@@ -137,8 +155,21 @@ describe('POST to create a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(400)
+  })
+
+  test('fails if a token is not provided', async () => {
+    const newBlog = {
+      author: 'author',
+      likes: 0
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
   })
 })
 
@@ -149,6 +180,7 @@ describe('DELETE a blog', () => {
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
