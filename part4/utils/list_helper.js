@@ -1,9 +1,5 @@
 const _ = require('lodash')
 
-const dummy = (blogs) => {
-  return 1
-}
-
 const totalLikes = (blogs) => {
   return _.sumBy(blogs, blog => blog.likes)
 }
@@ -49,5 +45,5 @@ const mostLikes = (blogs) => {
 }
 
 module.exports = {
-  dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes
+  totalLikes, favoriteBlog, mostBlogs, mostLikes
 }

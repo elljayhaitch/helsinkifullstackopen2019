@@ -19,8 +19,7 @@ usersRouter.post('/', async (request, response) => {
       .end()
   }
 
-  const saltRounds = 10
-  const passwordHash = await bcrypt.hash(body.password, saltRounds)
+  const passwordHash = await bcrypt.hash(body.password, 10)
 
   const user = new User({
     username: body.username,
@@ -47,8 +46,14 @@ usersRouter.get('/', async (request, response) => {
   response.json(users)
 })
 
-usersRouter.get('/:id', async (request, response, next) => {
-  const user = await User.findById(request.params.id)
+usersRouter.get('/:id', async (request, response) => {
+  let user
+  try {
+    user = await User.findById(request.params.id)
+  }
+  catch (error) {
+    return response.status(400).json({ error: `${error}` }).end()
+  }
 
   if (user) {
     return response.json(user).end()
@@ -57,23 +62,25 @@ usersRouter.get('/:id', async (request, response, next) => {
   }
 })
 
-usersRouter.delete('/:id', async (request, response, next) => {
+usersRouter.delete('/:id', async (request, response) => {
+  const user = await User.findById(request.params.id)
+  if (!user) {
+    return response.status(404).json({ error: 'could not find user' }).end()
+  }
+
+  // at the moment, not deleting their blogs. should we? so that blogs aren't left behing with null users
   await User.findByIdAndRemove(request.params.id)
   response.status(204).end()
 })
 
 usersRouter.put('/:id', async (request, response) => {
   let user = await User.findById(request.params.id)
-  if (user) {
-    user.username = request.body.username
-    user.name = request.body.name
-    // not updating password
-    User.findByIdAndUpdate(request.params.id, user, { new: true, runValidators: true })
-    return response.json(user).end()
-  } else {
-    // not found
-    response.status(404).end()
+  if (!user) {
+    return response.status(404).end()
   }
+
+  const updatedUser = await User.findByIdAndUpdate(request.params.id, { name: request.body.name }, { new: true, runValidators: true })
+  response.json(updatedUser)
 })
 
 module.exports = usersRouter

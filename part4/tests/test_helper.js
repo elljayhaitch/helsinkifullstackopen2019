@@ -14,14 +14,14 @@ const initialBlogs = [
     likes: 0
   },
   {
-    title: "Stephen Graham Jones's Playlist for His Novel 'The Only Good Indians'",
+    title: "Stephen Graham Jones's Playlist for His Novel 'The Only Good Indians'", // eslint-disable-line
     author: 'Largehearted Boy',
     url: 'http://www.largeheartedboy.com/blog/archive/2020/07/stephen_graham.html',
     likes: 0
   },
 ]
 
-const nonExistingId = async () => {
+const nonExistingBlogId = async () => {
   const blog = new Blog(
     {
       title: 'title',
@@ -36,6 +36,15 @@ const nonExistingId = async () => {
   return blog._id.toString()
 }
 
+const nonExistingUserId = async () => {
+  const passwordHash = await bcrypt.hash('anypass', 10)
+  const user = new User({ username: 'anybody', passwordHash })
+  await user.save()
+  await user.remove()
+
+  return user._id.toString()
+}
+
 const blogsInDb = async () => {
   const blogs = await Blog.find({})
   return blogs.map(blog => blog.toJSON())
@@ -46,20 +55,11 @@ const usersInDb = async () => {
   return users.map(user => user.toJSON())
 }
 
-const getTokenForInitialUser = async () => {
-  const initialUser =
-  {
-    username: 'lharvey',
-    password: 'plant'
-  }
-  const passwordHash = await bcrypt.hash(initialUser.password, 10)
-  const user = new User({ username: initialUser.username, passwordHash })
+const getTokenForUser = async (loginRequest) => {
+  const passwordHash = await bcrypt.hash(loginRequest.password, 10)
+  const user = new User({ username: loginRequest.username, passwordHash })
   const addedUser = await user.save()
 
-  const loginRequest = {
-    username: initialUser.username,
-    password: initialUser.password
-  }
   const response = await api.post('/api/login').send(loginRequest)
   return {
     token: response.body.token,
@@ -68,5 +68,5 @@ const getTokenForInitialUser = async () => {
 }
 
 module.exports = {
-  initialBlogs, nonExistingId, blogsInDb, usersInDb, getTokenForInitialUser
+  initialBlogs, nonExistingBlogId, nonExistingUserId, blogsInDb, usersInDb, getTokenForUser
 }

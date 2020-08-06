@@ -9,23 +9,23 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const body = request.body
+  if (!request.token) {
+    return response.status(401).json({ error: 'token missing' }).end()
+  }
 
   let decodedToken
   try {
     decodedToken = jwt.verify(request.token, process.env.SECRET)
   } catch (error) {
-    return response.status(401).json({ error: `${error}` })
+    return response.status(401).json({ error: `${error}` }).end()
   }
 
-  if (!request.token || !decodedToken.id) {
-    return response.status(401).json({ error: 'token missing or invalid' })
-  }
   const user = await User.findById(decodedToken.id)
+
+  const body = request.body
 
   if (body.title === undefined && body.url === undefined) {
     return response.status(400).end()
-    // TODO LH return
   }
   if (body.likes === undefined || body.likes < 0) {
     body.likes = 0
@@ -46,7 +46,7 @@ blogsRouter.post('/', async (request, response) => {
   response.json(savedBlog)
 })
 
-blogsRouter.get('/:id', async (request, response, next) => {
+blogsRouter.get('/:id', async (request, response) => {
   let blog
   try {
     blog = await Blog.findById(request.params.id)
@@ -57,50 +57,49 @@ blogsRouter.get('/:id', async (request, response, next) => {
 
   if (blog) {
     return response.json(blog).end()
-    // TODO LH return
   } else {
     response.status(404).end()
   }
 })
 
-blogsRouter.delete('/:id', async (request, response, next) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!request.token || !decodedToken.id) {
-    return response.status(401).json({ error: 'token missing or invalid' }).end()
+blogsRouter.delete('/:id', async (request, response) => {
+  if (!request.token) {
+    return response.status(401).json({ error: 'token missing' }).end()
+  }
+
+  let decodedToken
+  try {
+    decodedToken = jwt.verify(request.token, process.env.SECRET)
+  } catch (error) {
+    return response.status(401).json({ error: `${error}` }).end()
   }
 
   const blog = await Blog.findById(request.params.id)
   if (!blog) {
-    return response.status(400).json({ error: 'could not find blog' }).end()
+    return response.status(404).json({ error: 'could not find blog' }).end()
   }
 
-  // TODO LH add a test for this
-  if (!blog.user || blog.user.toString() !== decodedToken.id.toString()) {
+  if (!blog.user || !decodedToken.id || blog.user.toString() !== decodedToken.id.toString()) {
     return response.status(400).json({ error: 'users can only delete their own blogs' }).end()
   }
-  // TODO delete the blog from the user
   await Blog.findByIdAndRemove(request.params.id)
   response.status(204).end()
 })
 
 blogsRouter.put('/:id', async (request, response) => {
-  // only allowing update of likes value
   let blog = await Blog.findById(request.params.id)
-  if (blog) {
-    if (request.body.likes !== undefined && request.body.likes > 0) {
-      blog.likes = request.body.likes
-      Blog.findByIdAndUpdate(request.params.id, blog, { new: true, runValidators: true })
-      return response.json(blog).end()
-      // TODO LH return
-    }
-
-    // no update
-    return response.json(blog).end()
-    // TODO LH return
-  } else {
-    // not found
-    response.status(404).end()
+  if (!blog) {
+    return response.status(404).end()
   }
+
+  const body = request.body
+  if (body.likes === undefined || body.likes < 0) {
+    return response.json(blog).end()
+  }
+
+  blog.likes = body.likes
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true, runValidators: true })
+  response.json(updatedBlog)
 })
 
 module.exports = blogsRouter

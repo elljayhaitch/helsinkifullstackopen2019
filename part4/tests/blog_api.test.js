@@ -13,7 +13,12 @@ beforeEach(async () => {
   await Blog.deleteMany({})
   await User.deleteMany({})
 
-  const tokenForInitialUser = await helper.getTokenForInitialUser()
+  const user =
+  {
+    username: 'lharvey',
+    password: 'plant'
+  }
+  const tokenForInitialUser = await helper.getTokenForUser(user)
   token = tokenForInitialUser.token
 
   const blogObjects = helper.initialBlogs.map(blog => {
@@ -40,7 +45,7 @@ describe('GET all blogs', () => {
 
   test('returns blogs containing an expected blog', async () => {
     const response = await api.get('/api/blogs')
-    const titles = response.body.map(r => r.title)
+    const titles = response.body.map(b => b.title)
     expect(titles).toContain(helper.initialBlogs[0].title)
   })
 })
@@ -63,7 +68,7 @@ describe('GET a blog by id', () => {
   })
 
   test('fails if blog does not exist', async () => {
-    const validNonexistingId = await helper.nonExistingId()
+    const validNonexistingId = await helper.nonExistingBlogId()
     await api
       .get(`/api/blogs/${validNonexistingId}`)
       .expect(404)
@@ -171,6 +176,19 @@ describe('POST to create a new blog', () => {
       .send(newBlog)
       .expect(401)
   })
+
+  test('fails if the token provided cannot be decoded', async () => {
+    const newBlog = {
+      author: 'author',
+      likes: 0
+    }
+
+    await api
+      .post('/api/blogs')
+      .set('Authorization', 'Bearer badToken')
+      .send(newBlog)
+      .expect(401)
+  })
 })
 
 describe('DELETE a blog', () => {
@@ -189,17 +207,62 @@ describe('DELETE a blog', () => {
       helper.initialBlogs.length - 1
     )
 
-    const titles = blogsAtEnd.map(r => r.title)
+    const titles = blogsAtEnd.map(b => b.title)
     expect(titles).not.toContain(blogToDelete.title)
+  })
+
+  test('fails if blog does not exist', async () => {
+    const validNonexistingId = await helper.nonExistingBlogId()
+    await api
+      .delete(`/api/blogs/${validNonexistingId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(404)
+  })
+
+  test('fails if a token is not provided', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(401)
+  })
+
+  test('fails if the token provided cannot be decoded', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', 'Bearer badToken')
+      .expect(401)
+  })
+
+  test('fails if blog does not belong to user provided', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+
+    const user =
+    {
+      username: 'harveyl',
+      password: 'brook'
+    }
+    const tokenForAnotherUser = await helper.getTokenForUser(user)
+    token = tokenForAnotherUser.token
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(400)
   })
 })
 
 describe('PUT to update an existing blog', () => {
   test('succeeds with valid likes value', async () => {
-    let existingBlogs = await helper.blogsInDb()
-    let existingBlog = existingBlogs[0]
+    const existingBlogs = await helper.blogsInDb()
+    const existingBlog = existingBlogs[0]
 
-    const updatedLikes = existingBlog.likes++
+    const updatedLikes = 5
     existingBlog.likes = updatedLikes
 
     await api
@@ -208,10 +271,10 @@ describe('PUT to update an existing blog', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
-    existingBlogs = await helper.blogsInDb()
-    existingBlog = existingBlogs[0]
+    const updatedBlogs = await helper.blogsInDb()
+    const updatedBlog = updatedBlogs[0]
 
-    expect(existingBlog.likes).toEqual(updatedLikes)
+    expect(updatedBlog.likes).toEqual(updatedLikes)
   })
 
   test('will make no update but return existing blog if new likes value is less than 0', async () => {
@@ -253,7 +316,7 @@ describe('PUT to update an existing blog', () => {
   })
 
   test('fails if blog does not exist', async () => {
-    const validNonexistingId = await helper.nonExistingId()
+    const validNonexistingId = await helper.nonExistingBlogId()
 
     const existingBlogs = await helper.blogsInDb()
     const existingBlog = existingBlogs[0]
@@ -267,4 +330,4 @@ describe('PUT to update an existing blog', () => {
 
 afterAll(() => {
   mongoose.connection.close()
-}) 
+})
