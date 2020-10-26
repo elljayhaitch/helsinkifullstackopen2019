@@ -1,43 +1,37 @@
 import React, { useState } from 'react'
 import loginService from '../services/login'
 import blogService from '../services/blogs'
+import Notification from './Notification'
 
 const LoginForm = (props) => {
-  const { setUser } = props
+  const { setUser, setNotification, message, errorMessage } = props
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [errorMessage, setErrorMessage] = useState('')
 
   const handleLogin = async (event) => {
     event.preventDefault()
 
-    try {
-      const user = await loginService.login({
-        username, password,
+    loginService.login({
+      username, password,
+    })
+      .then(user => {
+        window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
+
+        blogService.setToken(user.token)
+        setUser(user)
+        setUsername('')
+        setPassword('')
       })
-
-      window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
-      )
-
-      blogService.setToken(user.token)
-      setUser(user)
-      setUsername('')
-      setPassword('')
-    } catch (exception) {
-      setErrorMessage('Incorrect username or password')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    }
+      .catch(error => setNotification(`Incorrect username or password, ${error}`, true))
   }
 
   return (
     <div>
-      <p>{errorMessage}</p>
-
       <h2>log in to application</h2>
+
+      <Notification message={message} notificationClass="notification" />
+      <Notification message={errorMessage} notificationClass="error" />
 
       <form onSubmit={handleLogin}>
         <div>
