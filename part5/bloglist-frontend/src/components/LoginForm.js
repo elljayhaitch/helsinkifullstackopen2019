@@ -1,46 +1,25 @@
-import React, { useState } from 'react'
-import loginService from '../services/login'
-import blogService from '../services/blogs'
+import React from 'react'
 import Notification from './Notification'
 
 const LoginForm = (props) => {
-  const { setUser, setNotification, message, errorMessage } = props
-
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-
-  const handleLogin = async (event) => {
-    event.preventDefault()
-
-    loginService.login({
-      username, password,
-    })
-      .then(user => {
-        window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
-
-        blogService.setToken(user.token)
-        setUser(user)
-        setUsername('')
-        setPassword('')
-      })
-      .catch(error => setNotification(`Incorrect username or password, ${error}`, true))
-  }
+  const { handleSubmit, message, errorMessage,
+    username, password, setUsername, setPassword } = props
 
   return (
-    <div>
+    < div >
       <h2>log in to application</h2>
 
       <Notification message={message} notificationClass="notification" />
       <Notification message={errorMessage} notificationClass="error" />
 
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleSubmit}>
         <div>
           username
             <input
             type="text"
             value={username}
             name="Username"
-            onChange={({ target }) => setUsername(target.value)}
+            onChange={setUsername}
           />
         </div>
         <div>
@@ -49,13 +28,12 @@ const LoginForm = (props) => {
             type="password"
             value={password}
             name="Password"
-            onChange={({ target }) => setPassword(target.value)}
+            onChange={setPassword}
           />
         </div>
         <button type="submit">login</button>
       </form>
-
-    </div>
+    </div >
   )
 }
 
