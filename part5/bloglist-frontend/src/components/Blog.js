@@ -31,11 +31,31 @@ const FullBlog = ({ blog, loggedInUser, setNotification }) => {
       .catch(error => setNotification(`Could not get user id in order to update blog, ${error}`, true))
   }
 
+  const deleteBlog = async (event) => {
+    event.preventDefault()
+
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+      blogService.deleteBlog(blog.id)
+        .then(response => {
+          if (response.status >= 200 && response.status < 300) {
+            setNotification('Blog was deleted', false)
+          } else {
+            setNotification('Could not delete blog', true)
+          }
+        })
+        .catch(error => setNotification(`Could not delete blog, ${error}`, true))
+    }
+  }
+
+  const blogBelongsToThisUser = blog.user.username === loggedInUser.username;
+  const showDelete = { display: blogBelongsToThisUser ? '' : 'none' }
+
   return (
     <div>
       <div>{blog.url}</div>
       <div>likes {blog.likes} <button onClick={addLike}>like</button></div>
       <div>{blog.user.name}</div>
+      <button style={showDelete} onClick={deleteBlog}>remove</button>
     </div>
   )
 }
