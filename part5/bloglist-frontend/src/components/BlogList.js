@@ -44,9 +44,9 @@ const BlogList = (props) => {
         />
       </Togglable>
 
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} loggedInUser={loggedInUser} setNotification={setNotification} />
-      )}
+      {blogs
+        .sort((a, b) => b.likes - a.likes)
+        .map(blog => <Blog key={blog.id} blog={blog} loggedInUser={loggedInUser} setNotification={setNotification} />)}
     </div>)
 }
 
