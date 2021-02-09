@@ -38,4 +38,25 @@ const addBlog = (title, author, url, userId) => {
     .then(response => response.data)
 }
 
-export default { getAll, setToken, addBlog }
+const updateBlog = (blogId, title, author, url, userId, likes) => {
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token
+    },
+  }
+
+  const data = {
+    title,
+    author,
+    url,
+    likes,
+    userId
+  }
+
+  const request = axios.put(`${baseUrl}/${blogId}`, data, config)
+  return request
+    .then(response => response.data)
+}
+
+export default { getAll, setToken, addBlog, updateBlog }

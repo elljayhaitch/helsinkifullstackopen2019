@@ -45,7 +45,7 @@ const BlogList = (props) => {
       </Togglable>
 
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} loggedInUser={loggedInUser} setNotification={setNotification} />
       )}
     </div>)
 }
