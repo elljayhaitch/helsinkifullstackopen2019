@@ -60,8 +60,8 @@ const App = () => {
           errorMessage={errorMessage}
           username={username}
           password={password}
-          setUsername={event => setUsername(event.target.value)}
-          setPassword={event => setPassword(event.target.value)}
+          handleUsernameChange={event => setUsername(event.target.value)}
+          handlePasswordChange={event => setPassword(event.target.value)}
         />
       </Togglable>)
   }
