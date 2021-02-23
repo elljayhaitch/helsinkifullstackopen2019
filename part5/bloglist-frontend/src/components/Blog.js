@@ -20,7 +20,7 @@ const FullBlog = ({ blog, loggedInUser, setNotification }) => {
     userService.getAll()
       .then(users => {
         const user = users.find(user => user.username === loggedInUser.username)
-        const newLikes = blog.likes + 1;
+        const newLikes = blog.likes + 1
 
         blogService.updateBlog(blog.id, blog.title, blog.author, blog.url, user.id, newLikes)
           .then(blog => {
@@ -47,7 +47,7 @@ const FullBlog = ({ blog, loggedInUser, setNotification }) => {
     }
   }
 
-  const blogBelongsToThisUser = blog.user.username === loggedInUser.username;
+  const blogBelongsToThisUser = blog.user.username === loggedInUser.username
   const showDelete = { display: blogBelongsToThisUser ? '' : 'none' }
 
   return (

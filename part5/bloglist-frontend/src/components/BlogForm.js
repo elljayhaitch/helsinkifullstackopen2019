@@ -11,11 +11,11 @@ const BlogForm = ({ loggedInUser, setNotification }) => {
   const [newBlog, setNewBlog] = useState(emptyBlog)
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value } = event.target
     setNewBlog(prevState => ({
       ...prevState,
       [name]: value
-    }));
+    }))
   }
 
   const createBlog = async (event) => {
