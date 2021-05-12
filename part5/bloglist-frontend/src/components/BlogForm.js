@@ -35,10 +35,10 @@ const BlogForm = ({ loggedInUser, setNotification }) => {
   }
 
   return (
-    <div>
+    <div data-testid='blog-form'>
       <h2>create new</h2>
       <form onSubmit={createBlog}>
-        <div>title:<input type="text" value={newBlog.title} name="title" onChange={handleChange} /></div>
+        <div>title:<input data-testid='title-input' type="text" value={newBlog.title} name="title" onChange={handleChange} /></div>
         <div>author:<input type="text" value={newBlog.author} name="author" onChange={handleChange} /></div>
         <div>url:<input type="text" value={newBlog.url} name="url" onChange={handleChange} /></div>
         <button type="submit">create</button>
